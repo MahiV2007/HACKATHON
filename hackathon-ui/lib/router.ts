@@ -63,7 +63,6 @@
 
 import { models, modelStats, ModelConfig } from "./modelPool";
 import { calculateScore } from "./calculateConfidence";
-import { promptStats, getPromptSignature } from "./promptMemory";
 import { stateStats } from "./stateMemory";
 
 // -----------------------------
@@ -113,10 +112,8 @@ export function pickBestModel(prompt: string): {
   );
 
   if (unusedModels.length > 0) {
-    const model = getRandomModel(unusedModels);
-
     return {
-      model,
+      model: getRandomModel(unusedModels),
       score: 0.4,
       mode: "explore",
     };
@@ -129,7 +126,7 @@ export function pickBestModel(prompt: string): {
   const stateData = stateStats[state];
 
   if (stateData) {
-    let bestModelId = null;
+    let bestModelId: string | null = null;
     let bestScore = -Infinity;
 
     for (const modelId in stateData) {
@@ -137,7 +134,7 @@ export function pickBestModel(prompt: string): {
 
       const score =
         (stats.reward || 0) +
-        Math.sqrt(1 / (stats.uses + 1)); // 🔥 exploration bonus
+        Math.sqrt(1 / (stats.uses + 1)); // exploration bonus
 
       if (score > bestScore) {
         bestScore = score;
@@ -170,21 +167,16 @@ export function pickBestModel(prompt: string): {
   }
 
   // -----------------------------
-  // 🔥 4. GLOBAL SCORING
+  // 🔥 4. GLOBAL FALLBACK
   // -----------------------------
   let bestModel: ModelConfig | null = null;
   let bestScore = -Infinity;
-
-  const totalUses = Object.values(modelStats).reduce(
-    (sum: number, m: any) => sum + (m?.uses || 0),
-    0
-  );
 
   for (const model of activeModels) {
     const stats = modelStats[model.id];
     if (!stats) continue;
 
-    const score = calculateScore(stats, totalUses);
+    const score = calculateScore(stats);
 
     if (score > bestScore) {
       bestScore = score;

@@ -1,75 +1,92 @@
-import fs from "fs";
-import path from "path";
-
-// -----------------------------
-// FILE PATH
-// -----------------------------
-const filePath = path.join(process.cwd(), "lib/data/stateStats.json");
-
-// -----------------------------
-// TYPES
-// -----------------------------
-type StateStats = {
-  [state: string]: {
-    [modelId: string]: {
-      uses: number;
-      reward: number;
-    };
-  };
+type ModelRLStats = {
+  uses: number;
+  reward: number;
 };
 
+type StateMemory = {
+  vector: number[];
+  models: Record<string, ModelRLStats>;
+};
+
+export const stateMemory: StateMemory[] = [];
+
 // -----------------------------
-// LOAD FROM FILE
+// SIMPLE VECTOR (NO KEYWORDS)
 // -----------------------------
-export function readStateStats(): StateStats {
-  try {
-    const data = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(data || "{}");
-  } catch {
-    return {};
+export function getVector(prompt: string): number[] {
+  const length = prompt.length;
+  const words = prompt.split(" ").length;
+  const avgWordLength =
+    prompt.split(" ").reduce((a, w) => a + w.length, 0) / (words || 1);
+
+  return [length / 100, words / 20, avgWordLength / 10];
+}
+
+// -----------------------------
+// COSINE SIMILARITY
+// -----------------------------
+function similarity(a: number[], b: number[]) {
+  const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
+  const magA = Math.sqrt(a.reduce((sum, v) => sum + v * v, 0));
+  const magB = Math.sqrt(b.reduce((sum, v) => sum + v * v, 0));
+
+  return dot / (magA * magB + 0.00001);
+}
+
+// -----------------------------
+// FIND CLOSEST STATE
+// -----------------------------
+export function findClosestState(vector: number[]) {
+  let best = null;
+  let bestSim = -1;
+
+  for (const s of stateMemory) {
+    const sim = similarity(vector, s.vector);
+
+    if (sim > bestSim) {
+      bestSim = sim;
+      best = s;
+    }
   }
+
+  return { state: best, similarity: bestSim };
 }
 
 // -----------------------------
-// WRITE TO FILE
+// UPDATE RL MEMORY
 // -----------------------------
-export function writeStateStats(data: StateStats) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-}
-
-// -----------------------------
-// GLOBAL STATE
-// -----------------------------
-export let stateStats: StateStats = readStateStats();
-
-// -----------------------------
-// UPDATE STATE (RL CORE)
-// -----------------------------
-export function updateStateStats(
-  state: string,
+export function updateStateMemory(
+  prompt: string,
   modelId: string,
   reward: number
 ) {
-  if (!stateStats[state]) {
-    stateStats[state] = {};
+  const vector = getVector(prompt);
+
+  const { state, similarity } = findClosestState(vector);
+
+  // 🔥 if similar state exists → update
+  if (state && similarity > 0.8) {
+    if (!state.models[modelId]) {
+      state.models[modelId] = { uses: 0, reward: 0 };
+    }
+
+    const stats = state.models[modelId];
+
+    stats.uses += 1;
+    stats.reward =
+      (stats.reward * (stats.uses - 1) + reward) / stats.uses;
+
+    return;
   }
 
-  if (!stateStats[state][modelId]) {
-    stateStats[state][modelId] = {
-      uses: 0,
-      reward: 0,
-    };
-  }
-
-  const stats = stateStats[state][modelId];
-  const prevUses = stats.uses;
-
-  stats.uses += 1;
-
-  // 🔥 moving average reward
-  stats.reward =
-    (stats.reward * prevUses + reward) / stats.uses;
-console.log("RL UPDATE:", state, modelId, reward);
-
-  writeStateStats(stateStats);
+  // 🔥 else create new state
+  stateMemory.push({
+    vector,
+    models: {
+      [modelId]: {
+        uses: 1,
+        reward,
+      },
+    },
+  });
 }

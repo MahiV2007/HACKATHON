@@ -126,11 +126,11 @@
     "failures": 5
   },
   "openchat/openchat-3.5": {
-    "uses": 6,
-    "avg_latency": 0.40599999999999997,
+    "uses": 7,
+    "avg_latency": 0.3694285714285714,
     "avg_cost": 0.00003,
     "success_rate": 0,
-    "failures": 6
+    "failures": 7
   },
   "Deepseek -v3.2": {
     "uses": 23,
@@ -138,5 +138,12 @@
     "avg_cost": 0.000029999999999999997,
     "success_rate": 0,
     "failures": 23
+  },
+  "meta-llama/llama-3-70b-instruct": {
+    "uses": 1,
+    "avg_latency": 3.73,
+    "avg_cost": 0.00022,
+    "success_rate": 1,
+    "failures": 0
   }
 }

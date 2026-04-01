@@ -31,24 +31,33 @@
 // }
   
 
-// app/api/ai/route.ts
-
 import { NextResponse } from "next/server";
+
 import { pickBestModel } from "@/lib/router";
 import { callModel } from "@/lib/providerRouter";
-import { updatePromptStats } from "@/lib/promptMemory";
-import { updateStateStats } from "@/lib/stateMemory";
+import { updateStateMemory } from "@/lib/stateMemory";
 import {
   updateModelStats,
   modelStats,
 } from "@/lib/modelPool";
 
+// -----------------------------
+// STATE FUNCTION
+// -----------------------------
 function getState(prompt: string) {
   const length = prompt.length;
 
+  if (length < 20) return "simple";
   if (length < 50) return "short";
   if (length < 150) return "medium";
   return "long";
+}
+
+// -----------------------------
+// SIMPLE PROMPT CHECK
+// -----------------------------
+function isSimple(prompt: string) {
+  return prompt.length < 20;
 }
 
 export async function POST(req: Request) {
@@ -64,10 +73,9 @@ export async function POST(req: Request) {
     }
 
     // -----------------------------
-    // 1. PICK MODEL (from pool)
+    // 1. PICK MODEL
     // -----------------------------
-    const safePrompt = prompt || "default";
-    const { model, score, mode } = pickBestModel(safePrompt);
+    const { model, score, mode } = pickBestModel(prompt);
 
     const startTime = Date.now();
 
@@ -75,15 +83,15 @@ export async function POST(req: Request) {
     // 2. CALL MODEL
     // -----------------------------
     const output = await callModel(
-    model.provider,
-    model.id,
-    prompt
-  );
+      model.provider,
+      model.id,
+      prompt
+    );
 
     const endTime = Date.now();
 
     // -----------------------------
-    // 3. SAFE TEXT HANDLING
+    // 3. TEXT HANDLING
     // -----------------------------
     const text =
       typeof output === "string"
@@ -95,29 +103,30 @@ export async function POST(req: Request) {
     // -----------------------------
     const latency = (endTime - startTime) / 1000;
 
-    const tokens = Math.max(1, Math.ceil(text.length / 4)); // rough estimate
+    const tokens = Math.max(1, Math.ceil(text.length / 4));
 
     const cost = tokens * 0.00001;
 
     const success =
       typeof output === "string" &&
-      output.length > 20 &&
+      output.length > 5 &&
       !output.toLowerCase().includes("error") &&
       !output.toLowerCase().includes("no response");
 
-
-    updateModelStats(model.id, latency, cost, success);
-    updatePromptStats(prompt, model.id, latency, cost, success);
-
-    // 🔥 RL STATE LEARNING
+    // -----------------------------
+    // 🔥 RL REWARD (SMART)
+    // -----------------------------
+    const simple = isSimple(prompt);
     const state = getState(prompt);
 
 const reward =
-  (success ? 1 : 0) * 0.7 +
-  (1 / (latency + 0.5)) * 0.2 +
-  (1 / (cost + 0.000001)) * 0.1;
+  (success ? 1 : 0) * 0.6 +
+  (1 / (latency + 0.5)) * 0.25 +
+  (1 / (cost + 0.000001)) * 0.15;
 
-    updateStateStats(state, model.id, reward);
+updateModelStats(model.id, latency, cost, success);
+updateStateMemory(prompt, model.id, reward);
+
     // -----------------------------
     // 6. RESPONSE
     // -----------------------------
@@ -131,8 +140,12 @@ const reward =
         model_id: model.id,
         provider: model.provider,
 
-        mode, // explore / exploit
+        mode,
         confidence_score: score,
+
+        // 🔥 RL VISIBILITY
+        state,
+        reward,
 
         metrics: {
           latency,
@@ -144,7 +157,7 @@ const reward =
         learned_stats: modelStats[model.id],
       },
     });
-    
+
   } catch (err) {
     console.error("API ERROR:", err);
 

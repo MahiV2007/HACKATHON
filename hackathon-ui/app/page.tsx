@@ -289,7 +289,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { motion } from "framer-motion";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -328,185 +327,130 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-black text-white flex flex-col items-center px-6 py-10">
+    <main className="min-h-screen bg-black text-white relative overflow-hidden">
 
-      {/* 🌌 Animated Background */}
-      <div className="absolute inset-0 -z-10">
-        <motion.div
-          animate={{ x: [0, 200, -200, 0], y: [0, -200, 200, 0] }}
-          transition={{ duration: 20, repeat: Infinity }}
-          className="absolute w-[500px] h-[500px] bg-purple-600 opacity-20 blur-3xl rounded-full"
-        />
-        <motion.div
-          animate={{ x: [0, -300, 300, 0], y: [0, 300, -300, 0] }}
-          transition={{ duration: 25, repeat: Infinity }}
-          className="absolute right-0 bottom-0 w-[500px] h-[500px] bg-blue-600 opacity-20 blur-3xl rounded-full"
-        />
+      {/* 🔥 BACKGROUND GLOW */}
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div className="absolute w-[500px] h-[500px] bg-purple-600/20 blur-[150px] top-[-100px] left-[-100px]" />
+        <div className="absolute w-[500px] h-[500px] bg-blue-600/20 blur-[150px] bottom-[-100px] right-[-100px]" />
       </div>
 
-      {/* TITLE */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-5xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent"
-      >
-        Intelligent Prompt Router
-      </motion.h1>
+      {/* 🔥 FLOATING NAVBAR */}
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex gap-6 px-6 py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg">
+          <span className="cursor-pointer hover:text-purple-400">Home</span>
+          <Link href="/models">
+            <span className="cursor-pointer hover:text-purple-400">Models</span>
+          </Link>
+          <Link href="/analytics">
+            <span className="cursor-pointer hover:text-purple-400">Analytics</span>
+          </Link>
+        </div>
+      </div>
 
-      <p className="text-gray-400 mt-4 text-center max-w-xl">
-        Optimize cost. Maximize accuracy. Route intelligence.
-      </p>
+      {/* 🔥 HERO */}
+      <div className="flex flex-col items-center justify-center min-h-screen px-6">
 
-      {/* INPUT CARD */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-12 w-full max-w-2xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
-      >
-        <input
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ask anything..."
-          className="w-full p-4 rounded-xl bg-black/40 border border-gray-700 focus:outline-none"
-        />
+        <h1 className="text-6xl font-extrabold text-center bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
+          AI Router
+        </h1>
 
-        <button
-          onClick={runAI}
-          className="mt-4 w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:scale-105 transition"
-        >
-          🚀 Run Smart Routing
-        </button>
-      </motion.div>
+        <p className="text-gray-400 mt-4 text-center max-w-xl">
+          Intelligent model selection powered by reinforcement learning
+        </p>
 
-      {/* OUTPUT SECTION */}
-      <div className="mt-10 w-full max-w-4xl grid gap-6">
+        {/* 🔥 INPUT CARD */}
+        <div className="mt-12 w-full max-w-2xl p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
 
-        {loading && (
-          <p className="text-gray-400 animate-pulse text-center">
-            ⚡ Routing through models...
-          </p>
-        )}
+          <input
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Ask anything..."
+            className="w-full p-4 rounded-xl bg-black/40 border border-gray-700 focus:outline-none"
+          />
 
-        {response && (
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl"
+          <button
+            onClick={runAI}
+            className="mt-4 w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition"
           >
-            <p className="text-gray-200 whitespace-pre-line leading-relaxed">
-              {response}
-            </p>
-          </motion.div>
+            🚀 Run Smart Routing
+          </button>
+        </div>
+
+        {/* 🔥 LOADING */}
+        {loading && (
+          <p className="mt-6 text-gray-400 animate-pulse">
+            ⚡ Thinking & routing...
+          </p>
         )}
 
-        {/* META DASHBOARD */}
-  {meta && (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className="grid md:grid-cols-3 gap-5 mt-6"
-  >
+        {/* 🔥 RESPONSE */}
+        {response && (
+          <div className="mt-10 w-full max-w-4xl grid md:grid-cols-2 gap-6">
 
-    {/* 🔥 MAIN MODEL CARD */}
-    <div className="col-span-3 p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
-      <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-        Selected Model
-      </p>
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-xl font-semibold">{meta.model}</p>
-          <p className="text-sm text-gray-400">{meta.provider}</p>
-        </div>
-        <span className="text-xs px-3 py-1 bg-purple-500/20 rounded-full">
-          {meta.mode}
-        </span>
-      </div>
-    </div>
+            {/* ANSWER */}
+            <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
+              <p className="text-gray-200 whitespace-pre-line leading-relaxed">
+                {response}
+              </p>
+            </div>
 
-    {/* 🎯 CONFIDENCE */}
-    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-      <p className="text-xs text-gray-400 mb-1">Confidence</p>
-      <p className="text-2xl font-bold text-purple-400">
-        {meta.confidence_score?.toFixed(3)}
-      </p>
-    </div>
+            {/* META PANEL */}
+            {meta && (
+              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-4">
 
-    {/* ⏱ LATENCY */}
-    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-      <p className="text-xs text-gray-400 mb-1">Latency</p>
-      <p className="text-xl font-semibold">
-        {meta.metrics?.latency?.toFixed(2)}s
-      </p>
-    </div>
+                <h2 className="text-lg font-semibold text-purple-400">
+                  Routing Insights
+                </h2>
 
-    {/* 💰 COST */}
-    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-      <p className="text-xs text-gray-400 mb-1">Cost</p>
-      <p className="text-xl font-semibold">
-        ${meta.metrics?.cost?.toFixed(5)}
-      </p>
-    </div>
+                <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
 
-    {/* 📊 TOKENS */}
-    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-      <p className="text-xs text-gray-400 mb-1">Tokens</p>
-      <p className="text-xl font-semibold">
-        {Math.round(meta.metrics?.tokens)}
-      </p>
-    </div>
+                  <div>🤖 Model</div>
+                  <div className="text-right">{meta.model}</div>
 
-    {/* ✅ SUCCESS */}
-    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
-      <p className="text-xs text-gray-400 mb-1">Status</p>
-      <p
-        className={`text-xl font-semibold ${
-          meta.metrics?.success ? "text-green-400" : "text-red-400"
-        }`}
-      >
-        {meta.metrics?.success ? "Success" : "Failed"}
-      </p>
-    </div>
+                  <div>⚙️ Provider</div>
+                  <div className="text-right">{meta.provider}</div>
 
-    {/* 🧠 LEARNING */}
-    <div className="col-span-3 p-6 bg-white/5 border border-white/10 rounded-2xl">
-      <p className="text-xs text-gray-400 uppercase mb-3">
-        Learned Performance
-      </p>
+                  <div>📊 Mode</div>
+                  <div className="text-right">{meta.mode}</div>
 
-      <div className="grid grid-cols-3 gap-4 text-sm">
-        <div>
-          <p className="text-gray-400">Uses</p>
-          <p className="font-semibold">{meta.learned_stats?.uses}</p>
-        </div>
+                  <div>🎯 Score</div>
+                  <div className="text-right">
+                    {meta.confidence_score?.toFixed(3)}
+                  </div>
 
-        <div>
-          <p className="text-gray-400">Success Rate</p>
-          <p className="font-semibold">
-            {(meta.learned_stats?.success_rate * 100)?.toFixed(1)}%
-          </p>
-        </div>
+                  <div>⏱ Latency</div>
+                  <div className="text-right">
+                    {meta.metrics?.latency?.toFixed(2)}s
+                  </div>
 
-        <div>
-          <p className="text-gray-400">Avg Latency</p>
-          <p className="font-semibold">
-            {meta.learned_stats?.avg_latency?.toFixed(2)}s
-          </p>
-        </div>
-      </div>
-    </div>
+                  <div>💰 Cost</div>
+                  <div className="text-right">
+                    {meta.metrics?.cost?.toFixed(5)}
+                  </div>
 
-  </motion.div>
-)}
-      </div>
+                  <div>🔢 Tokens</div>
+                  <div className="text-right">
+                    {Math.round(meta.metrics?.tokens)}
+                  </div>
 
-      {/* FOOTER BUTTON */}
-      <div className="mt-16">
-        <Link href="/details">
-          <button className="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-blue-500 hover:scale-105 transition">
-            See How It Works →
-          </button>
-        </Link>
+                  <div>🧠 Reward</div>
+                  <div className="text-right">
+                    {meta.reward?.toFixed(3)}
+                  </div>
+
+                </div>
+
+                <div className="border-t border-white/10 pt-3 text-sm text-gray-400">
+                  Uses: {meta.learned_stats?.uses} <br />
+                  Success: {(meta.learned_stats?.success_rate * 100)?.toFixed(1)}%
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );
-}
+} 

@@ -55,27 +55,59 @@ export type ModelStats = {
   failures: number; // NEW
 };
 
-// -----------------------------
-// MODEL REGISTRY (ADD HERE)
-// -----------------------------
-export const models: ModelConfig[] = [
 
 // -----------------------------
 // NVIDIA MODELS
 // -----------------------------
 
-{
-  id: "meta/llama3-70b-instruct",
-  name: "Llama 3 70B (NVIDIA)",
-  provider: "nvidia",
-  enabled: true,
-},
+export const models: ModelConfig[] = [
+  // ⚡ FAST (LLAMA 8B)
+  {
+    id: "meta-llama/llama-3-8b-instruct",
+    name: "Llama 8B - Fast",
+    provider: "openrouter",
+    enabled: true,
+  },
+  {
+    id: "meta-llama/llama-3-8b-instruct",
+    name: "Llama 8B - Creative",
+    provider: "openrouter",
+    enabled: true,
+  },
+  {
+    id: "meta-llama/llama-3-8b-instruct",
+    name: "Llama 8B - Concise",
+    provider: "openrouter",
+    enabled: true,
+  },
+  {
+    id: "meta-llama/llama-3-8b-instruct",
+    name: "Llama 8B - Code Helper",
+    provider: "openrouter",
+    enabled: true,
+  },
+
+  // 🧠 POWERFUL (LLAMA 70B)
+ 
+  {
+    id: "meta-llama/llama-3-70b-instruct",
+    name: "Llama 70B - Deep Reasoning",
+    provider: "openrouter",
+    enabled: true,
+  },
+  {
+    id: "meta-llama/llama-3-70b-instruct",
+    name: "Llama 70B - Detailed",
+    provider: "openrouter",
+    enabled: true,
+  },
+
 
 {
   id: "Deepseek -v3.2",
   name: "Deepseek 3.2 (NVIDIA)",
   provider: "nvidia",
-  enabled: true,
+  enabled: false,
 },
 {
   id: "gpt-oss-120b",
@@ -89,6 +121,12 @@ export const models: ModelConfig[] = [
   provider: "nvidia",
   enabled: false,
 },
+  {
+    id: "meta-llama/llama-3-70b-instruct",
+    name: "Llama 70B - Analytical",
+    provider: "openrouter",
+    enabled: true,
+  },
     {
       id: "meta/llama3-8b-instruct",
       name: "Llama 3 (NVIDIA)",
@@ -107,7 +145,13 @@ export const models: ModelConfig[] = [
       name: "Claude 3 Sonnet (Bedrock)",
       provider: "bedrock",
       enabled: false,
+
     },
+     {
+    id: "meta-llama/llama-3-70b-instruct",
+    name: "Llama 70B - Accurate",
+    provider: "openrouter",
+    enabled: true},
     {
       id: "anthropic.claude-3-7-sonnet-20250219-v1:0",
       name: "Claude 3.7 Sonnet (Bedrock)",
@@ -168,7 +212,7 @@ export const models: ModelConfig[] = [
       id: "openchat/openchat-3.5",
       name: "GPT-3.5 Turbo (Router)",
       provider: "openrouter",
-      enabled: true,
+      enabled: false,
     },
 
 
