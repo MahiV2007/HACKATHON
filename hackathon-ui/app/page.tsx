@@ -1,105 +1,61 @@
 "use client";
 
 import { useState } from "react";
-
-interface Result {
-  answer: string;
-  confidence: number;
-  model_used: string;
-  cost: number;
-  reason: string;
-}
+import InputBox from "@/components/InputBox";
+import ModeSelector from "@/components/ModeSelector";
+import ResultCard from "@/components/ResultCard";
+import Loader from "@/components/Loader";
+import { AIResponse } from "@/types";
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [mode, setMode] = useState("balanced");
-  const [result, setResult] = useState<Result | null>(null);
+  const [mode, setMode] = useState("fast");
+  const [result, setResult] = useState<AIResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!query) return;
-
+  const handleRun = async () => {
     setLoading(true);
     setResult(null);
 
-    try {
-      const res = await fetch("http://localhost:8000/route", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, mode }),
-      });
+    const res = await fetch("/api/ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, mode }),
+    });
 
-      const data = await res.json();
-      setResult(data);
-    } catch (err) {
-      console.error(err);
-    }
-
+    const data = await res.json();
+    setResult(data);
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center p-10">
-      <h1 className="text-4xl font-bold mb-8">🧠 LLM Router Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center p-6">
 
-      {/* Input */}
-      <textarea
-        placeholder="Enter your query..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        rows={4}
-        className="w-full max-w-2xl p-4 rounded text-black mb-4"
-      />
+      <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 w-full max-w-3xl">
 
-      {/* Mode Selection */}
-      <div className="mb-4">
-        <button
-          onClick={() => setMode("fast")}
-          className={`px-4 py-2 rounded mr-2 ${mode === "fast" ? "bg-blue-500" : "bg-gray-600"}`}
-        >
-          ⚡ Fast
-        </button>
-        <button
-          onClick={() => setMode("balanced")}
-          className={`px-4 py-2 rounded mr-2 ${mode === "balanced" ? "bg-blue-500" : "bg-gray-600"}`}
-        >
-          ⚖️ Balanced
-        </button>
-        <button
-          onClick={() => setMode("accurate")}
-          className={`px-4 py-2 rounded ${mode === "accurate" ? "bg-blue-500" : "bg-gray-600"}`}
-        >
-          🎯 Accurate
-        </button>
-      </div>
+        <h1 className="text-4xl font-bold text-center mb-6">
+          🚀 LLM Routing System
+        </h1>
 
-      {/* Submit */}
-      <button
-        onClick={handleSubmit}
-        className="bg-blue-500 px-6 py-2 rounded hover:bg-blue-600 mb-4"
-      >
-        Ask
-      </button>
+        <InputBox value={query} onChange={setQuery} />
 
-      {/* Loading */}
-      {loading && <p className="text-yellow-400">⏳ Processing...</p>}
+        <div className="flex justify-between items-center mb-4">
+          <ModeSelector mode={mode} setMode={setMode} />
 
-      {/* Result */}
-      {result && (
-        <div className="mt-8 bg-slate-800 p-6 rounded w-full max-w-2xl">
-          <h2 className="text-2xl font-bold mb-4">📢 Answer</h2>
-          <p className="mb-2">{result.answer}</p>
-
-          <h3 className="text-lg font-semibold">📊 Confidence: {result.confidence}%</h3>
-          <h3 className="text-lg font-semibold">🤖 Model Used: {result.model_used}</h3>
-          <h3 className="text-lg font-semibold">💸 Cost: ${result.cost}</h3>
-
-          <h3 className="text-lg font-semibold mt-4">🔍 Decision Path</h3>
-          <p>{result.reason}</p>
+          <button
+            onClick={handleRun}
+            className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-2 rounded-xl hover:scale-105 transition"
+          >
+            Run
+          </button>
         </div>
-      )}
+
+        {loading && <Loader />}
+        {result && <ResultCard result={result} />}
+
+      </div>
     </div>
   );
 }
