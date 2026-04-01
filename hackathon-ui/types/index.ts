@@ -3,4 +3,5 @@ export interface AIResponse {
   confidence: string;
   model: string;
   cost: string;
+  reason: string;
 }

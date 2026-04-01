@@ -7,6 +7,7 @@ export default function ResultCard({ result }: { result: AIResponse }) {
       <p><strong>Confidence:</strong> {result.confidence}</p>
       <p><strong>Model:</strong> {result.model}</p>
       <p><strong>Cost:</strong> {result.cost}</p>
+      <p><strong>Reason:</strong> {result.reason}</p>
     </div>
   );
 }

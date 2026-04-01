@@ -1,33 +1,28 @@
 import { NextResponse } from "next/server";
+import { routeQuery } from "@/lib/router";
 
 export async function POST(req: Request) {
-  const { query, mode } = await req.json();
+  const { query } = await req.json();
 
-  // MOCK RESPONSE (safe for now)
-  let response;
+  try {
+    // ✅ DEFINE result here
+    const result = await routeQuery(query);
 
-  if (mode === "fast") {
-    response = {
-      answer: "Quick response for: " + query,
-      confidence: "60%",
-      model: "fast-model",
-      cost: "$0.001"
-    };
-  } else if (mode === "balanced") {
-    response = {
-      answer: "Balanced response for: " + query,
-      confidence: "80%",
-      model: "balanced-model",
-      cost: "$0.003"
-    };
-  } else {
-    response = {
-      answer: "Accurate response for: " + query,
-      confidence: "95%",
-      model: "premium-model",
-      cost: "$0.01"
-    };
+    return NextResponse.json({
+    answer: result.answer,
+    model: result.model,
+    confidence: result.confidence, // ✅ now real
+    cost: result.cost,             // ✅ now real
+    reason: result.reason,
+    });
+
+  } catch (error) {
+    return NextResponse.json({
+      answer: "Something went wrong",
+      model: "error",
+      confidence: "0%",
+      cost: "$0",
+      reason: "Error occurred",
+    });
   }
-
-  return NextResponse.json(response);
 }
