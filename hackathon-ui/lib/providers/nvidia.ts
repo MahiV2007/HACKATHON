@@ -9,25 +9,26 @@ export async function callNvidia(model: string, prompt: string) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model,
-          messages: [{ role: "user", content: prompt }],
+          model: model,
+          messages: [
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 512,
         }),
       }
     );
 
-    const raw = await res.text();
-    console.log("NVIDIA RAW:", raw);
+    const data = await res.json();
 
-    if (!raw.startsWith("{")) {
-      return "No response";
-    }
-
-    const data = JSON.parse(raw);
+    console.log("NVIDIA RAW:", data);
 
     return data?.choices?.[0]?.message?.content || "No response";
-
   } catch (err) {
-    console.error("NVIDIA failed:", err);
+    console.error("NVIDIA ERROR:", err);
     return "No response";
   }
 }

@@ -37,10 +37,19 @@ import { NextResponse } from "next/server";
 import { pickBestModel } from "@/lib/router";
 import { callModel } from "@/lib/providerRouter";
 import { updatePromptStats } from "@/lib/promptMemory";
+import { updateStateStats } from "@/lib/stateMemory";
 import {
   updateModelStats,
   modelStats,
 } from "@/lib/modelPool";
+
+function getState(prompt: string) {
+  const length = prompt.length;
+
+  if (length < 50) return "short";
+  if (length < 150) return "medium";
+  return "long";
+}
 
 export async function POST(req: Request) {
   try {
@@ -96,11 +105,19 @@ export async function POST(req: Request) {
       !output.toLowerCase().includes("error") &&
       !output.toLowerCase().includes("no response");
 
-    // -----------------------------
-    // 5. UPDATE LEARNING (separate file)
-    // -----------------------------
+
     updateModelStats(model.id, latency, cost, success);
     updatePromptStats(prompt, model.id, latency, cost, success);
+
+    // 🔥 RL STATE LEARNING
+    const state = getState(prompt);
+
+const reward =
+  (success ? 1 : 0) * 0.7 +
+  (1 / (latency + 0.5)) * 0.2 +
+  (1 / (cost + 0.000001)) * 0.1;
+
+    updateStateStats(state, model.id, reward);
     // -----------------------------
     // 6. RESPONSE
     // -----------------------------

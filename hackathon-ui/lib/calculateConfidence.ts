@@ -23,12 +23,29 @@
 // }
 
 
-export function calculateScore(m: any) {
-  if (m.uses === 0) return 0;
+export function calculateScore(m: any, totalUses: number = 1) {
+  // -----------------------------
+  // COLD START
+  // -----------------------------
+  if (!m || m.uses === 0) return 0.4; // 🔥 base confidence
 
-  return (
+  // -----------------------------
+  // BASIC PERFORMANCE
+  // -----------------------------
+  const performance =
     m.success_rate * 0.5 +
     (1 / (m.avg_latency || 1)) * 0.3 +
-    (1 / (m.avg_cost || 1)) * 0.2
+    (1 / (m.avg_cost || 1)) * 0.2;
+
+  // -----------------------------
+  // 🔥 RL EXPLORATION (UCB STYLE)
+  // -----------------------------
+  const explorationBonus = Math.sqrt(
+    Math.log(totalUses + 1) / (m.uses + 1)
   );
+
+  // -----------------------------
+  // FINAL SCORE
+  // -----------------------------
+  return performance + 0.2 * explorationBonus;
 }

@@ -1,85 +1,107 @@
 {
-  "explain god in 3 sentences": {
-    "google/gemma-7b-it": {
-      "uses": 1,
-      "avg_latency": 0.436,
-      "avg_cost": 0.000030000000000000004,
-      "success_rate": 0
-    }
-  },
-  "explain ai in 3 sentences": {
-    "google/gemma-7b-it": {
-      "uses": 1,
-      "avg_latency": 1.642,
-      "avg_cost": 0.000030000000000000004,
-      "success_rate": 0
-    }
-  },
-  "explain ai in 3 sen": {
+  "ask anything": {
     "meta/llama3-8b-instruct": {
       "uses": 1,
-      "avg_latency": 2.485,
-      "avg_cost": 0.00151,
+      "avg_latency": 0.957,
+      "avg_cost": 0.00038,
       "success_rate": 1
-    }
-  },
-  "explain photosynthesis in 1 sen": {
-    "mistralai/mixtral-8x7b-instruct": {
-      "uses": 1,
-      "avg_latency": 0.159,
-      "avg_cost": 0.000030000000000000004,
-      "success_rate": 0
     },
     "meta/llama3-70b-instruct": {
       "uses": 1,
-      "avg_latency": 1.936,
-      "avg_cost": 0.0005600000000000001,
+      "avg_latency": 1.858,
+      "avg_cost": 0.00044,
       "success_rate": 1
-    }
-  },
-  "explain black bodies in limited tokens": {
-    "mistralai/mistral-7b-instruct": {
-      "uses": 1,
-      "avg_latency": 0.302,
+    },
+    "gpt-oss-120b": {
+      "uses": 2,
+      "avg_latency": 0.186,
       "avg_cost": 0.000030000000000000004,
       "success_rate": 0
     },
-    "meta-llama/llama-3-8b-instruct": {
-      "uses": 1,
-      "avg_latency": 3.867,
-      "avg_cost": 0.0014900000000000002,
-      "success_rate": 1
-    }
-  },
-  "what is black hole under 5 sentences": {
-    "meta/llama3-70b-instruct": {
+    "nemotron-3-super-120b": {
       "uses": 3,
-      "avg_latency": 5.086333333333333,
-      "avg_cost": 0.0017433333333333335,
-      "success_rate": 1
+      "avg_latency": 0.10766666666666667,
+      "avg_cost": 0.000030000000000000008,
+      "success_rate": 0
     }
   },
-  "write a code in c fibonacci with from indentation": {
-    "meta/llama3-70b-instruct": {
-      "uses": 1,
-      "avg_latency": 11.896,
-      "avg_cost": 0.0036600000000000005,
-      "success_rate": 1
-    }
-  },
-  "whaats the life span of earth": {
+  "ask a riddle": {
     "meta-llama/llama-3-8b-instruct": {
       "uses": 1,
-      "avg_latency": 8.089,
-      "avg_cost": 0.00459,
+      "avg_latency": 1.596,
+      "avg_cost": 0.00048000000000000007,
       "success_rate": 1
     }
   },
-  "whaats the diff btw a sweater and a rug": {
+  "ask a puzzle": {
     "meta/llama3-8b-instruct": {
       "uses": 1,
-      "avg_latency": 6.091,
-      "avg_cost": 0.00442,
+      "avg_latency": 4.423,
+      "avg_cost": 0.0024100000000000002,
+      "success_rate": 1
+    }
+  },
+  "ask a brainteaser": {
+    "meta/llama3-70b-instruct": {
+      "uses": 1,
+      "avg_latency": 3.343,
+      "avg_cost": 0.0011200000000000001,
+      "success_rate": 1
+    }
+  },
+  "ask a": {
+    "gpt-oss-120b": {
+      "uses": 1,
+      "avg_latency": 0.469,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    }
+  },
+  "as": {
+    "nemotron-3-super-120b": {
+      "uses": 1,
+      "avg_latency": 1.887,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    }
+  },
+  "story": {
+    "gpt-oss-120b": {
+      "uses": 3,
+      "avg_latency": 0.084,
+      "avg_cost": 0.000030000000000000008,
+      "success_rate": 0
+    },
+    "nemotron-3-super-120b": {
+      "uses": 2,
+      "avg_latency": 0.0405,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    }
+  },
+  "ask": {
+    "openchat/openchat-3.5": {
+      "uses": 8,
+      "avg_latency": 0.3415,
+      "avg_cost": 0.00003,
+      "success_rate": 0
+    },
+    "meta/llama3-8b-instruct": {
+      "uses": 1,
+      "avg_latency": 2.596,
+      "avg_cost": 0.00059,
+      "success_rate": 1
+    },
+    "Deepseek -v3.2": {
+      "uses": 25,
+      "avg_latency": 0.16488,
+      "avg_cost": 0.000029999999999999997,
+      "success_rate": 0
+    },
+    "meta/llama3-70b-instruct": {
+      "uses": 1,
+      "avg_latency": 0.965,
+      "avg_cost": 0.00015000000000000001,
       "success_rate": 1
     }
   }

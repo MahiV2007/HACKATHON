@@ -64,6 +64,8 @@
 import { models, modelStats, ModelConfig } from "./modelPool";
 import { calculateScore } from "./calculateConfidence";
 import { promptStats, getPromptSignature } from "./promptMemory";
+import { stateStats } from "./stateMemory";
+
 // -----------------------------
 // GET ACTIVE MODELS
 // -----------------------------
@@ -72,28 +74,21 @@ function getActiveModels(): ModelConfig[] {
 }
 
 // -----------------------------
-// RANDOM MODEL (EXPLORATION)
+// RANDOM MODEL
 // -----------------------------
-function getRandomModel(): ModelConfig {
-  const activeModels = getActiveModels();
-
-  if (activeModels.length === 0) {
-    throw new Error("No active models available");
-  }
-
-  const index = Math.floor(Math.random() * activeModels.length);
-  return activeModels[index];
+function getRandomModel(models: ModelConfig[]): ModelConfig {
+  return models[Math.floor(Math.random() * models.length)];
 }
 
 // -----------------------------
-// CHECK IF ANY MODEL HAS DATA
+// STATE FUNCTION
 // -----------------------------
-function hasData(): boolean {
-  const activeModels = getActiveModels();
+function getState(prompt: string) {
+  const length = prompt.length;
 
-  return activeModels.some(
-    (m) => modelStats[m.id] && modelStats[m.id].uses > 0
-  );
+  if (length < 50) return "short";
+  if (length < 150) return "medium";
+  return "long";
 }
 
 // -----------------------------
@@ -110,98 +105,86 @@ export function pickBestModel(prompt: string): {
     throw new Error("No enabled models");
   }
 
-
   // -----------------------------
-  // ALWAYS TRY UNUSED MODELS FIRST
+  // 🔥 1. FORCE TRY UNUSED MODELS
   // -----------------------------
-
-
-      // -----------------------------
-  // GET PROMPT MEMORY
-  // -----------------------------
-    const signature = getPromptSignature(prompt);
-  const promptData = promptStats[signature];
-
-  // 🔥 🔥 🔥 PLACE IT RIGHT HERE 🔥 🔥 🔥
-
-  // -----------------------------
-  // IF PROMPT SEEN BEFORE → USE BEST MODEL
-  // -----------------------------
-  if (promptData && Math.random() > 0.25)  {
-    let bestModel = null;
-    let bestScore = -Infinity;
-
-    for (const modelId in promptData) {
-      const stats = promptData[modelId];
-
-      const score =
-        stats.success_rate * 0.5 +
-        (1 / (stats.avg_latency || 1)) * 0.25 +
-        (1 / (stats.avg_cost || 1)) * 0.15 +
-        (1 / (stats.uses + 1)) * 0.1; // 🔥 prevents domination
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestModel = modelId;
-      }
-    }
-
-    if (bestModel) {
-      const model = activeModels.find((m) => m.id === bestModel);
-
-      if (model && model.enabled) {
-        return {
-          model,
-          score: bestScore,
-          mode: "exploit",
-        };
-      }
-    }
-  }
-
   const unusedModels = activeModels.filter(
     (m) => !modelStats[m.id] || modelStats[m.id].uses === 0
   );
 
   if (unusedModels.length > 0) {
-    const randomUnused =
-      unusedModels[Math.floor(Math.random() * unusedModels.length)];
+    const model = getRandomModel(unusedModels);
 
     return {
-      model: randomUnused,
-      score: 0,
+      model,
+      score: 0.4,
       mode: "explore",
     };
   }
 
+  // -----------------------------
+  // 🔥 2. STATE-BASED RL (MAIN)
+  // -----------------------------
+  const state = getState(prompt);
+  const stateData = stateStats[state];
+
+  if (stateData) {
+    let bestModelId = null;
+    let bestScore = -Infinity;
+
+    for (const modelId in stateData) {
+      const stats = stateData[modelId];
+
+      const score =
+        (stats.reward || 0) +
+        Math.sqrt(1 / (stats.uses + 1)); // 🔥 exploration bonus
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestModelId = modelId;
+      }
+    }
+
+    const model = activeModels.find((m) => m.id === bestModelId);
+
+    if (model) {
+      return {
+        model,
+        score: bestScore,
+        mode: "exploit",
+      };
+    }
+  }
 
   // -----------------------------
-  // EPSILON EXPLORATION
+  // 🔥 3. EPSILON EXPLORATION
   // -----------------------------
   const explorationRate = 0.2;
 
   if (Math.random() < explorationRate) {
     return {
-      model: getRandomModel(),
-      score: 0,
+      model: getRandomModel(activeModels),
+      score: 0.4,
       mode: "explore",
     };
   }
 
   // -----------------------------
-  // EXPLOIT (BEST MODEL)
+  // 🔥 4. GLOBAL SCORING
   // -----------------------------
   let bestModel: ModelConfig | null = null;
   let bestScore = -Infinity;
+
+  const totalUses = Object.values(modelStats).reduce(
+    (sum: number, m: any) => sum + (m?.uses || 0),
+    0
+  );
 
   for (const model of activeModels) {
     const stats = modelStats[model.id];
     if (!stats) continue;
 
-    let score = calculateScore(stats);
-
-    // 🔥 SMALL BOOST FOR LESS USED MODELS
-    score += 1 / (stats.uses + 1);
+    const score = calculateScore(stats, totalUses);
 
     if (score > bestScore) {
       bestScore = score;
@@ -209,13 +192,10 @@ export function pickBestModel(prompt: string): {
     }
   }
 
-  // -----------------------------
-  // FALLBACK
-  // -----------------------------
   if (!bestModel) {
     return {
-      model: getRandomModel(),
-      score: 0,
+      model: getRandomModel(activeModels),
+      score: 0.4,
       mode: "explore",
     };
   }

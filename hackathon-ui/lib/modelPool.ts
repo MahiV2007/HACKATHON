@@ -72,20 +72,20 @@ export const models: ModelConfig[] = [
 },
 
 {
-  id: "mistralai/mixtral-8x7b-instruct",
-  name: "Mixtral 8x7B (NVIDIA)",
+  id: "Deepseek -v3.2",
+  name: "Deepseek 3.2 (NVIDIA)",
+  provider: "nvidia",
+  enabled: true,
+},
+{
+  id: "gpt-oss-120b",
+  name: "GPT-OSS 120B (NVIDIA)",
   provider: "nvidia",
   enabled: false,
 },
 {
-  id: "mistralai/mistral-7b-instruct",
-  name: "Mistral 7B (NVIDIA)",
-  provider: "nvidia",
-  enabled: false,
-},
-{
-  id: "google/gemma-7b-it",
-  name: "Gemma 7B (NVIDIA)",
+  id: "nemotron-3-super-120b",
+  name: "Nemotron 3 Super 120B (NVIDIA)",
   provider: "nvidia",
   enabled: false,
 },
@@ -165,7 +165,7 @@ export const models: ModelConfig[] = [
       enabled: false,
     },
     {
-      id: "meta-llama/llama-3-8b-instruct",
+      id: "openchat/openchat-3.5",
       name: "GPT-3.5 Turbo (Router)",
       provider: "openrouter",
       enabled: true,

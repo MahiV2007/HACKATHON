@@ -136,10 +136,160 @@
 
 
 
+// "use client";
+
+// import Link from "next/link";
+// import { useState } from "react";
+
+// export default function Home() {
+//   const [prompt, setPrompt] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [response, setResponse] = useState("");
+//   const [meta, setMeta] = useState<any>(null);
+
+//   const runAI = async () => {
+//     setLoading(true);
+//     setResponse("");
+//     setMeta(null);
+
+//     try {
+//       const res = await fetch("/api/ai", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ prompt }), // ✅ FIXED
+//       });
+
+//       const data = await res.json();
+
+//       const text = data.response || "";
+
+//       // Typing effect
+//       for (let i = 0; i < text.length; i++) {
+//         setResponse((prev) => prev + text[i]);
+//         await new Promise((res) => setTimeout(res, 5));
+//       }
+
+//       setMeta(data.meta); // ✅ DIRECT META
+
+//     } catch (err) {
+//       setResponse("Error fetching AI response");
+//     }
+
+//     setLoading(false);
+//   };
+
+//   return (
+//     <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex flex-col items-center px-6 py-10">
+      
+//       <h1 className="text-5xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
+//         Intelligent Prompt Router
+//       </h1>
+
+//       <p className="text-gray-400 mt-4 text-center max-w-xl">
+//         Optimize cost. Maximize accuracy. Route intelligence.
+//       </p>
+
+//       {/* INPUT */}
+//       <div className="mt-12 w-full max-w-xl p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl">
+//         <input
+//           value={prompt}
+//           onChange={(e) => setPrompt(e.target.value)}
+//           placeholder="Try: Explain black holes or write code..."
+//           className="w-full p-4 rounded-xl bg-black/40 border border-gray-700"
+//         />
+
+//         <button
+//           onClick={runAI}
+//           className="mt-4 w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl"
+//         >
+//           🚀 Run Smart Routing
+//         </button>
+//       </div>
+
+//       {/* OUTPUT */}
+//       <div className="mt-8 w-full max-w-xl">
+
+//         {loading && (
+//           <p className="text-gray-400 animate-pulse">
+//             ⚡ Routing through models...
+//           </p>
+//         )}
+
+//         {response && (
+//           <div className="mt-4 p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl">
+
+//             {/* AI RESPONSE */}
+//             <p className="text-gray-200 leading-relaxed whitespace-pre-line">
+//               {response}
+//             </p>
+
+//             {/* META INFO */}
+//             {meta && (
+//               <div className="mt-6 space-y-3 text-sm">
+
+//                 {/* MODEL INFO */}
+//                 <div className="flex justify-between border-t border-gray-700 pt-3 text-gray-400">
+//                   <span>🤖 {meta.model}</span>
+//                   <span>⚙️ {meta.provider}</span>
+//                   <span>📊 {meta.mode}</span>
+//                 </div>
+
+//                 {/* SCORE */}
+//                 <div className="flex justify-between text-gray-400">
+//                   <span>🎯 Confidence</span>
+//                   <span>{meta.confidence_score?.toFixed(3)}</span>
+//                 </div>
+
+//                 {/* METRICS */}
+//                 <div className="grid grid-cols-2 gap-2 text-gray-400">
+//                   <span>⏱ Latency: {meta.metrics?.latency?.toFixed(2)}s</span>
+//                   <span>💰 Cost: {meta.metrics?.cost?.toFixed(5)}</span>
+//                   <span>🔢 Tokens: {Math.round(meta.metrics?.tokens)}</span>
+//                   <span>
+//                     ✅ Success: {meta.metrics?.success ? "Yes" : "No"}
+//                   </span>
+//                 </div>
+
+//                 {/* LEARNING STATS 🔥 */}
+//                 <div className="border-t border-gray-700 pt-3 text-gray-400">
+//                   <p>🧠 Learned Stats:</p>
+//                   <p>Uses: {meta.learned_stats?.uses}</p>
+//                   <p>
+//                     Success Rate:{" "}
+//                     {(meta.learned_stats?.success_rate * 100)?.toFixed(1)}%
+//                   </p>
+//                   <p>
+//                     Avg Latency:{" "}
+//                     {meta.learned_stats?.avg_latency?.toFixed(2)}s
+//                   </p>
+//                 </div>
+
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="mt-16">
+//         <Link href="/details">
+//           <button className="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-blue-500">
+//             See How It Works →
+//           </button>
+//         </Link>
+//       </div>
+
+//     </main>
+//   );
+// }
+
+
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -158,22 +308,19 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt }), // ✅ FIXED
+        body: JSON.stringify({ prompt }),
       });
 
       const data = await res.json();
-
       const text = data.response || "";
 
-      // Typing effect
       for (let i = 0; i < text.length; i++) {
         setResponse((prev) => prev + text[i]);
         await new Promise((res) => setTimeout(res, 5));
       }
 
-      setMeta(data.meta); // ✅ DIRECT META
-
-    } catch (err) {
+      setMeta(data.meta);
+    } catch {
       setResponse("Error fetching AI response");
     }
 
@@ -181,105 +328,185 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex flex-col items-center px-6 py-10">
-      
-      <h1 className="text-5xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
+    <main className="relative min-h-screen overflow-hidden bg-black text-white flex flex-col items-center px-6 py-10">
+
+      {/* 🌌 Animated Background */}
+      <div className="absolute inset-0 -z-10">
+        <motion.div
+          animate={{ x: [0, 200, -200, 0], y: [0, -200, 200, 0] }}
+          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute w-[500px] h-[500px] bg-purple-600 opacity-20 blur-3xl rounded-full"
+        />
+        <motion.div
+          animate={{ x: [0, -300, 300, 0], y: [0, 300, -300, 0] }}
+          transition={{ duration: 25, repeat: Infinity }}
+          className="absolute right-0 bottom-0 w-[500px] h-[500px] bg-blue-600 opacity-20 blur-3xl rounded-full"
+        />
+      </div>
+
+      {/* TITLE */}
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-5xl font-bold text-center bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent"
+      >
         Intelligent Prompt Router
-      </h1>
+      </motion.h1>
 
       <p className="text-gray-400 mt-4 text-center max-w-xl">
         Optimize cost. Maximize accuracy. Route intelligence.
       </p>
 
-      {/* INPUT */}
-      <div className="mt-12 w-full max-w-xl p-6 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl">
+      {/* INPUT CARD */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-12 w-full max-w-2xl p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl"
+      >
         <input
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Try: Explain black holes or write code..."
-          className="w-full p-4 rounded-xl bg-black/40 border border-gray-700"
+          placeholder="Ask anything..."
+          className="w-full p-4 rounded-xl bg-black/40 border border-gray-700 focus:outline-none"
         />
 
         <button
           onClick={runAI}
-          className="mt-4 w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl"
+          className="mt-4 w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl hover:scale-105 transition"
         >
           🚀 Run Smart Routing
         </button>
-      </div>
+      </motion.div>
 
-      {/* OUTPUT */}
-      <div className="mt-8 w-full max-w-xl">
+      {/* OUTPUT SECTION */}
+      <div className="mt-10 w-full max-w-4xl grid gap-6">
 
         {loading && (
-          <p className="text-gray-400 animate-pulse">
+          <p className="text-gray-400 animate-pulse text-center">
             ⚡ Routing through models...
           </p>
         )}
 
         {response && (
-          <div className="mt-4 p-5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl">
-
-            {/* AI RESPONSE */}
-            <p className="text-gray-200 leading-relaxed whitespace-pre-line">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl"
+          >
+            <p className="text-gray-200 whitespace-pre-line leading-relaxed">
               {response}
             </p>
-
-            {/* META INFO */}
-            {meta && (
-              <div className="mt-6 space-y-3 text-sm">
-
-                {/* MODEL INFO */}
-                <div className="flex justify-between border-t border-gray-700 pt-3 text-gray-400">
-                  <span>🤖 {meta.model}</span>
-                  <span>⚙️ {meta.provider}</span>
-                  <span>📊 {meta.mode}</span>
-                </div>
-
-                {/* SCORE */}
-                <div className="flex justify-between text-gray-400">
-                  <span>🎯 Confidence</span>
-                  <span>{meta.confidence_score?.toFixed(3)}</span>
-                </div>
-
-                {/* METRICS */}
-                <div className="grid grid-cols-2 gap-2 text-gray-400">
-                  <span>⏱ Latency: {meta.metrics?.latency?.toFixed(2)}s</span>
-                  <span>💰 Cost: {meta.metrics?.cost?.toFixed(5)}</span>
-                  <span>🔢 Tokens: {Math.round(meta.metrics?.tokens)}</span>
-                  <span>
-                    ✅ Success: {meta.metrics?.success ? "Yes" : "No"}
-                  </span>
-                </div>
-
-                {/* LEARNING STATS 🔥 */}
-                <div className="border-t border-gray-700 pt-3 text-gray-400">
-                  <p>🧠 Learned Stats:</p>
-                  <p>Uses: {meta.learned_stats?.uses}</p>
-                  <p>
-                    Success Rate:{" "}
-                    {(meta.learned_stats?.success_rate * 100)?.toFixed(1)}%
-                  </p>
-                  <p>
-                    Avg Latency:{" "}
-                    {meta.learned_stats?.avg_latency?.toFixed(2)}s
-                  </p>
-                </div>
-
-              </div>
-            )}
-          </div>
+          </motion.div>
         )}
+
+        {/* META DASHBOARD */}
+  {meta && (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="grid md:grid-cols-3 gap-5 mt-6"
+  >
+
+    {/* 🔥 MAIN MODEL CARD */}
+    <div className="col-span-3 p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl">
+      <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">
+        Selected Model
+      </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-xl font-semibold">{meta.model}</p>
+          <p className="text-sm text-gray-400">{meta.provider}</p>
+        </div>
+        <span className="text-xs px-3 py-1 bg-purple-500/20 rounded-full">
+          {meta.mode}
+        </span>
+      </div>
+    </div>
+
+    {/* 🎯 CONFIDENCE */}
+    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+      <p className="text-xs text-gray-400 mb-1">Confidence</p>
+      <p className="text-2xl font-bold text-purple-400">
+        {meta.confidence_score?.toFixed(3)}
+      </p>
+    </div>
+
+    {/* ⏱ LATENCY */}
+    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+      <p className="text-xs text-gray-400 mb-1">Latency</p>
+      <p className="text-xl font-semibold">
+        {meta.metrics?.latency?.toFixed(2)}s
+      </p>
+    </div>
+
+    {/* 💰 COST */}
+    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+      <p className="text-xs text-gray-400 mb-1">Cost</p>
+      <p className="text-xl font-semibold">
+        ${meta.metrics?.cost?.toFixed(5)}
+      </p>
+    </div>
+
+    {/* 📊 TOKENS */}
+    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+      <p className="text-xs text-gray-400 mb-1">Tokens</p>
+      <p className="text-xl font-semibold">
+        {Math.round(meta.metrics?.tokens)}
+      </p>
+    </div>
+
+    {/* ✅ SUCCESS */}
+    <div className="p-5 bg-white/5 border border-white/10 rounded-xl">
+      <p className="text-xs text-gray-400 mb-1">Status</p>
+      <p
+        className={`text-xl font-semibold ${
+          meta.metrics?.success ? "text-green-400" : "text-red-400"
+        }`}
+      >
+        {meta.metrics?.success ? "Success" : "Failed"}
+      </p>
+    </div>
+
+    {/* 🧠 LEARNING */}
+    <div className="col-span-3 p-6 bg-white/5 border border-white/10 rounded-2xl">
+      <p className="text-xs text-gray-400 uppercase mb-3">
+        Learned Performance
+      </p>
+
+      <div className="grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <p className="text-gray-400">Uses</p>
+          <p className="font-semibold">{meta.learned_stats?.uses}</p>
+        </div>
+
+        <div>
+          <p className="text-gray-400">Success Rate</p>
+          <p className="font-semibold">
+            {(meta.learned_stats?.success_rate * 100)?.toFixed(1)}%
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400">Avg Latency</p>
+          <p className="font-semibold">
+            {meta.learned_stats?.avg_latency?.toFixed(2)}s
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </motion.div>
+)}
       </div>
 
+      {/* FOOTER BUTTON */}
       <div className="mt-16">
         <Link href="/details">
-          <button className="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-blue-500">
+          <button className="px-8 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-blue-500 hover:scale-105 transition">
             See How It Works →
           </button>
         </Link>
       </div>
-
     </main>
   );
 }
