@@ -1,0 +1,86 @@
+{
+  "explain god in 3 sentences": {
+    "google/gemma-7b-it": {
+      "uses": 1,
+      "avg_latency": 0.436,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    }
+  },
+  "explain ai in 3 sentences": {
+    "google/gemma-7b-it": {
+      "uses": 1,
+      "avg_latency": 1.642,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    }
+  },
+  "explain ai in 3 sen": {
+    "meta/llama3-8b-instruct": {
+      "uses": 1,
+      "avg_latency": 2.485,
+      "avg_cost": 0.00151,
+      "success_rate": 1
+    }
+  },
+  "explain photosynthesis in 1 sen": {
+    "mistralai/mixtral-8x7b-instruct": {
+      "uses": 1,
+      "avg_latency": 0.159,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    },
+    "meta/llama3-70b-instruct": {
+      "uses": 1,
+      "avg_latency": 1.936,
+      "avg_cost": 0.0005600000000000001,
+      "success_rate": 1
+    }
+  },
+  "explain black bodies in limited tokens": {
+    "mistralai/mistral-7b-instruct": {
+      "uses": 1,
+      "avg_latency": 0.302,
+      "avg_cost": 0.000030000000000000004,
+      "success_rate": 0
+    },
+    "meta-llama/llama-3-8b-instruct": {
+      "uses": 1,
+      "avg_latency": 3.867,
+      "avg_cost": 0.0014900000000000002,
+      "success_rate": 1
+    }
+  },
+  "what is black hole under 5 sentences": {
+    "meta/llama3-70b-instruct": {
+      "uses": 3,
+      "avg_latency": 5.086333333333333,
+      "avg_cost": 0.0017433333333333335,
+      "success_rate": 1
+    }
+  },
+  "write a code in c fibonacci with from indentation": {
+    "meta/llama3-70b-instruct": {
+      "uses": 1,
+      "avg_latency": 11.896,
+      "avg_cost": 0.0036600000000000005,
+      "success_rate": 1
+    }
+  },
+  "whaats the life span of earth": {
+    "meta-llama/llama-3-8b-instruct": {
+      "uses": 1,
+      "avg_latency": 8.089,
+      "avg_cost": 0.00459,
+      "success_rate": 1
+    }
+  },
+  "whaats the diff btw a sweater and a rug": {
+    "meta/llama3-8b-instruct": {
+      "uses": 1,
+      "avg_latency": 6.091,
+      "avg_cost": 0.00442,
+      "success_rate": 1
+    }
+  }
+}
