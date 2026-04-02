@@ -22,6 +22,10 @@ import { callOpenRouter } from "./openrouter";
 import { callOpenAI } from "./providers/openai";
 import { callBedrock } from "./providers/bedrock";
 import { callNvidia } from "./providers/nvidia";
+import { callGroq } from "./providers/groq";
+import { callFireworks } from "./providers/fireworks";
+import { callGoogle } from "./providers/google";
+
 
 function withTimeout(promise: Promise<any>, ms: number) {
   return Promise.race([
@@ -52,6 +56,15 @@ export async function callModel(
 
   if (provider === "nvidia") {
   return callNvidia(modelId, prompt);
+}
+  if (provider === "groq") {
+  return callGroq(modelId, prompt);
+}
+if (provider === "fireworks") {
+  return callFireworks(modelId, prompt);
+}
+if (provider === "google") {
+  return callGoogle(modelId, prompt);
 }
 
   throw new Error("Unknown provider");

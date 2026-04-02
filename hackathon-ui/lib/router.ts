@@ -1,69 +1,7 @@
-// import { analyzePrompt } from "./analyzer";
-// import { modelPool } from "./modelPool";
-// import { callModel } from "./providerRouter";
-// import { calculateConfidence } from "./calculateConfidence";
-// import { estimateCost } from "./cost";
-
-// export async function routeQuery(query: string) {
-//   const type = await analyzePrompt(query);
-
-//   const models = modelPool[type];
-
-//   let finalAnswer = "";
-//   let usedModel = "";
-//   let reason = `AI classified as ${type}`;
-//   let fallbackUsed = false;
-//   let totalCost = 0;
-
-//   for (let i = 0; i < models.length; i++) {
-//     const { provider, model, name } = models[i];
-
-//     try {
-//       const result = await callModel(provider, query, model);
-
-//       const answer = result.text;
-
-//       if (!answer || answer.includes("Error")) {
-//         throw new Error("Bad response");
-//       }
-
-//       finalAnswer = answer;
-//       usedModel = name;
-//       totalCost += result.cost;
-
-//       if (i > 0) {
-//         fallbackUsed = true;
-//         reason += ` → fallback to ${name}`;
-//       } else {
-//         reason += ` → primary ${name}`;
-//       }
-
-//       break;
-//     } catch (err) {
-//       console.log(`❌ Failed: ${provider} ${model}`);
-//       continue;
-//     }
-//   }
-
-//   const confidence = calculateConfidence(finalAnswer);
-
-//   return {
-//     answer: finalAnswer || "All models failed",
-
-
-//     model: usedModel,
-//     confidence: confidence + "%",
-//     cost: `$${totalCost.toFixed(6)}`,
-//     reason,
-//     fallbackUsed,
-//   };
-// }
-
-// lib/router.ts
-
 import { models, modelStats, ModelConfig } from "./modelPool";
 import { calculateScore } from "./calculateConfidence";
-import { stateStats } from "./stateMemory";
+import { getHint } from "./promptHints";
+import { getVector, findClosestState } from "./stateMemory";
 
 // -----------------------------
 // GET ACTIVE MODELS
@@ -80,18 +18,7 @@ function getRandomModel(models: ModelConfig[]): ModelConfig {
 }
 
 // -----------------------------
-// STATE FUNCTION
-// -----------------------------
-function getState(prompt: string) {
-  const length = prompt.length;
-
-  if (length < 50) return "short";
-  if (length < 150) return "medium";
-  return "long";
-}
-
-// -----------------------------
-// MAIN ROUTER
+// MAIN ROUTER (RL + UCB)
 // -----------------------------
 export function pickBestModel(prompt: string): {
   model: ModelConfig;
@@ -105,36 +32,73 @@ export function pickBestModel(prompt: string): {
   }
 
   // -----------------------------
-  // 🔥 1. FORCE TRY UNUSED MODELS
+  // 🔥 1. FORCE EXPLORATION (IMPORTANT)
   // -----------------------------
-  const unusedModels = activeModels.filter(
-    (m) => !modelStats[m.id] || modelStats[m.id].uses === 0
-  );
-
-  if (unusedModels.length > 0) {
+  if (Math.random() < 0.3) {
     return {
-      model: getRandomModel(unusedModels),
-      score: 0.4,
+      model: getRandomModel(activeModels),
+      score: 0.3,
       mode: "explore",
     };
   }
 
   // -----------------------------
-  // 🔥 2. STATE-BASED RL (MAIN)
+  // 🔥 2. STATE-BASED LEARNING
   // -----------------------------
-  const state = getState(prompt);
-  const stateData = stateStats[state];
+  const vector = getVector(prompt);
+  const { state, similarity } = findClosestState(vector);
 
-  if (stateData) {
+  if (state && similarity > 0.6) {
     let bestModelId: string | null = null;
     let bestScore = -Infinity;
 
-    for (const modelId in stateData) {
-      const stats = stateData[modelId];
+    // total usage for UCB
+    const totalUses = Object.values(state.models).reduce(
+      (sum: number, m: any) => sum + (m.uses || 0),
+      0
+    );
 
-      const score =
-        (stats.reward || 0) +
-        Math.sqrt(1 / (stats.uses + 1)); // exploration bonus
+    const hints = getHint(prompt);
+
+    for (const modelId in state.models) {
+      const stats = state.models[modelId];
+      const model = activeModels.find((m) => m.id === modelId);
+
+      if (!model) continue;
+
+      // -----------------------------
+      // 🔥 BASE SCORE
+      // -----------------------------
+      let score = calculateScore(stats);
+
+      // -----------------------------
+      // 🔥 UCB EXPLORATION (IMPORTANT)
+      // -----------------------------
+      const exploration = Math.sqrt(
+        Math.log(totalUses + 1) / (stats.uses + 1)
+      );
+
+      score += 0.3 * exploration;
+
+      // -----------------------------
+      // 🔥 SMART HINT BOOST
+      // -----------------------------
+      if (hints.isCoding && model.name.includes("120B")) {
+        score += 0.2;
+      }
+
+      if (hints.isSimple && model.name.includes("8B")) {
+        score += 0.15;
+      }
+
+      if (hints.isMath && model.name.includes("120B")) {
+        score += 0.2;
+      }
+
+      // -----------------------------
+      // 🔥 RANDOMNESS (ANTI-DOMINATION)
+      // -----------------------------
+      score += Math.random() * 0.03;
 
       if (score > bestScore) {
         bestScore = score;
@@ -154,20 +118,22 @@ export function pickBestModel(prompt: string): {
   }
 
   // -----------------------------
-  // 🔥 3. EPSILON EXPLORATION
+  // 🔥 3. TRY UNUSED MODELS
   // -----------------------------
-  const explorationRate = 0.2;
+  const unusedModels = activeModels.filter(
+    (m) => !modelStats[m.id] || modelStats[m.id].uses < 2
+  );
 
-  if (Math.random() < explorationRate) {
+  if (unusedModels.length > 0) {
     return {
-      model: getRandomModel(activeModels),
+      model: getRandomModel(unusedModels),
       score: 0.4,
       mode: "explore",
     };
   }
 
   // -----------------------------
-  // 🔥 4. GLOBAL FALLBACK
+  // 🔥 4. GLOBAL BEST (FALLBACK)
   // -----------------------------
   let bestModel: ModelConfig | null = null;
   let bestScore = -Infinity;
@@ -176,7 +142,13 @@ export function pickBestModel(prompt: string): {
     const stats = modelStats[model.id];
     if (!stats) continue;
 
-    const score = calculateScore(stats);
+    let score = calculateScore(stats);
+
+    // slight exploration
+    score += 1 / (stats.uses + 1);
+
+    // tiny randomness
+    score += Math.random() * 0.02;
 
     if (score > bestScore) {
       bestScore = score;
@@ -184,16 +156,11 @@ export function pickBestModel(prompt: string): {
     }
   }
 
-  if (!bestModel) {
-    return {
-      model: getRandomModel(activeModels),
-      score: 0.4,
-      mode: "explore",
-    };
-  }
-
+  // -----------------------------
+  // FINAL RETURN
+  // -----------------------------
   return {
-    model: bestModel,
+    model: bestModel || getRandomModel(activeModels),
     score: bestScore,
     mode: "exploit",
   };

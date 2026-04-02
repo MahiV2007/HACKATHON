@@ -93,10 +93,15 @@ export async function POST(req: Request) {
     // -----------------------------
     // 3. TEXT HANDLING
     // -----------------------------
-    const text =
-      typeof output === "string"
-        ? output
-        : JSON.stringify(output || "");
+  let text =
+    typeof output === "string"
+      ? output
+      : JSON.stringify(output || "");
+
+  // GPT-style formatting
+  text = text
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\. /g, ".\n\n");
 
     // -----------------------------
     // 4. METRICS

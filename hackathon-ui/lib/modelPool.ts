@@ -43,7 +43,7 @@
 export type ModelConfig = {
   id: string;
   name: string;
-  provider: "openrouter" | "openai" | "bedrock" | "nvidia";
+  provider: "openrouter" | "openai" | "bedrock" | "nvidia" | "groq" | "fireworks" | "google";
   enabled: boolean;
 };
 
@@ -64,42 +64,104 @@ export const models: ModelConfig[] = [
   // ⚡ FAST (LLAMA 8B)
   {
     id: "meta-llama/llama-3-8b-instruct",
-    name: "Llama 8B - Fast",
+    name: "claude Haiku - Fast",
     provider: "openrouter",
     enabled: true,
   },
+
+    {
+  id: "llama-3.1-8b-instant",
+  name: "LLaMA 3.1 Instant (Groq)",
+  provider: "groq",
+  enabled: true,
+},
   {
-    id: "meta-llama/llama-3-8b-instruct",
-    name: "Llama 8B - Creative",
-    provider: "openrouter",
-    enabled: true,
+  id: "meta-llama/llama-prompt-guard-2-86m",
+  name: "LLaMA Prompt Guard - Fast (Groq)",
+  provider: "groq",
+  enabled: false,
+},
+  {
+  id: "openai/gpt-oss-safeguard-20b",
+  name: "GPT-OSS Safeguard 20B (Groq)",
+  provider: "groq",
+  enabled: true,
+},
+{
+  id: "openai/gpt-oss-120b",
+  name: "GPT-OSS 120B (Groq)",
+  provider: "groq",
+  enabled: true,
+},
+
+{
+  id: "moonshotai/kimi-k2-instruct-0905",
+  name: "Kimi K2 (Groq)",
+  provider: "groq",
+  enabled: true,
+},
+{
+  id: "gemini-1.5-flash-latest",
+  name: "Gemini Flash",
+  provider: "google",
+  enabled: false,
+},
+{
+  id: "gemini-1.5-pro",
+  name: "Gemini Pro",
+  provider: "google",
+  enabled: false,
+},
+{
+  id: "accounts/fireworks/models/nvidia-nemotron-3-super-120b-a12b-fp8",
+  name: "Nemotron 3 Super 120B-Reasoning (Fireworks)",
+  provider: "fireworks",
+  enabled: false,
+},
+{
+  id: "accounts/fireworks/models/minimax-m2p5",
+  name: "Minimax M2P5-Coding (Fireworks)",
+  provider: "fireworks",
+  enabled: false,
+},
+{
+  id: "accounts/fireworks/models/deepseek-v3p2",
+  name: "Deepseek 3.2 (Fireworks)",
+  provider: "fireworks",
+  enabled: false,
+},
+  {
+    id: "accounts/fireworks/models/glm-4p7",
+    name: "GLM 4.7 (Fireworks)",
+    provider: "fireworks",
+    enabled: false,
   },
   {
     id: "meta-llama/llama-3-8b-instruct",
-    name: "Llama 8B - Concise",
+    name: "GPT-4o - Balanced",
     provider: "openrouter",
-    enabled: true,
+    enabled: false,
   },
   {
     id: "meta-llama/llama-3-8b-instruct",
-    name: "Llama 8B - Code Helper",
+    name: " Mistral 7B- Efficient",
     provider: "openrouter",
-    enabled: true,
+    enabled: false,
   },
 
   // 🧠 POWERFUL (LLAMA 70B)
  
   {
     id: "meta-llama/llama-3-70b-instruct",
-    name: "Llama 70B - Deep Reasoning",
+    name: "Claude Sonnet - Deep Reasoning",
     provider: "openrouter",
-    enabled: true,
+    enabled: false,
   },
   {
     id: "meta-llama/llama-3-70b-instruct",
     name: "Llama 70B - Detailed",
     provider: "openrouter",
-    enabled: true,
+    enabled: false,
   },
 
 
@@ -123,15 +185,15 @@ export const models: ModelConfig[] = [
 },
   {
     id: "meta-llama/llama-3-70b-instruct",
-    name: "Llama 70B - Analytical",
+    name: "Gemma 7B - Lightweight",
     provider: "openrouter",
-    enabled: true,
+    enabled: false,
   },
     {
       id: "meta/llama3-8b-instruct",
-      name: "Llama 3 (NVIDIA)",
+      name: "claude Haikyu",
       provider: "nvidia",
-      enabled: true,
+      enabled: false,
     },
     {
     
@@ -151,7 +213,7 @@ export const models: ModelConfig[] = [
     id: "meta-llama/llama-3-70b-instruct",
     name: "Llama 70B - Accurate",
     provider: "openrouter",
-    enabled: true},
+    enabled: false},
     {
       id: "anthropic.claude-3-7-sonnet-20250219-v1:0",
       name: "Claude 3.7 Sonnet (Bedrock)",
